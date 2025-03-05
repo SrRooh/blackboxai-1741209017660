@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error - LinkTree Clone</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+    </style>
+</head>
+<body>
+    <div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-md w-full space-y-8 text-center">
+            <div>
+                <i class="fas fa-exclamation-circle text-6xl text-red-500 mb-4"></i>
+                <h2 class="text-3xl font-extrabold text-gray-900">
+                    Oops! Something went wrong
+                </h2>
+                <p class="mt-2 text-gray-600">
+                    <%= typeof error !== 'undefined' ? error : 'An unexpected error occurred.' %>
+                </p>
+            </div>
+            
+            <div class="mt-8">
+                <a href="/" class="text-primary hover:text-primary-dark">
+                    <i class="fas fa-arrow-left mr-2"></i>
+                    Return to Home
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <footer class="fixed bottom-0 w-full text-center text-gray-500 text-sm py-4">
+        <p>&copy; <%= new Date().getFullYear() %> LinkTree Clone. All rights reserved.</p>
+    </footer>
+</body>
+</html>
