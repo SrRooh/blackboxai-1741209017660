@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - LinkTree Clone</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gray-100">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <h1 class="text-xl font-semibold text-gray-800">Admin Dashboard</h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="/admin/settings" class="text-gray-600 hover:text-primary">
+                        <i class="fas fa-cog mr-1"></i> Settings
+                    </a>
+                    <a href="/" class="text-gray-600 hover:text-primary">
+                        <i class="fas fa-eye mr-1"></i> View Site
+                    </a>
+                    <a href="/admin/logout" class="text-gray-600 hover:text-red-600">
+                        <i class="fas fa-sign-out-alt mr-1"></i> Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <!-- Add New Link Button -->
+        <div class="mb-6">
+            <button onclick="openNewLinkModal()" 
+                    class="bg-primary hover:bg-primary-dark text-white font-bold py-2 px-4 rounded inline-flex items-center">
+                <i class="fas fa-plus mr-2"></i>
+                Add New Link
+            </button>
+        </div>
+
+        <!-- Links Table -->
+        <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">URL</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    <% if (links && links.length > 0) { %>
+                        <% links.forEach(link => { %>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <%= link.order %>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <i class="<%= link.icon %> text-primary mr-2"></i>
+                                        <div class="text-sm font-medium text-gray-900">
+                                            <%= link.title %>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <a href="<%= link.url %>" target="_blank" class="text-primary hover:underline">
+                                        <%= link.url %>
+                                    </a>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full <%= link.active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' %>">
+                                        <%= link.active ? 'Active' : 'Inactive' %>
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <button onclick="openEditLinkModal('<%= link.id %>')" class="text-primary hover:text-primary-dark mr-3">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </button>
+                                    <button onclick="deleteLink('<%= link.id %>')" class="text-red-600 hover:text-red-900">
+                                        <i class="fas fa-trash"></i> Delete
+                                    </button>
+                                </td>
+                            </tr>
+                        <% }); %>
+                    <% } else { %>
+                        <tr>
+                            <td colspan="5" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                                No links available. Add your first link!
+                            </td>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Add/Edit Link Modal -->
+    <div id="linkModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div class="mt-3">
+                <h3 class="text-lg leading-6 font-medium text-gray-900" id="modalTitle">Add New Link</h3>
+                <form id="linkForm" class="mt-4">
+                    <input type="hidden" id="linkId" name="id">
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="title">
+                            Title
+                        </label>
+                        <input type="text" id="title" name="title" required
+                               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="url">
+                            URL
+                        </label>
+                        <input type="url" id="url" name="url" required
+                               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Display Type</label>
+                        <div class="flex space-x-4">
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="displayType" value="icon" checked
+                                       class="form-radio text-primary"
+                                       onchange="toggleDisplayType('icon')">
+                                <span class="ml-2">Icon</span>
+                            </label>
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="displayType" value="image"
+                                       class="form-radio text-primary"
+                                       onchange="toggleDisplayType('image')">
+                                <span class="ml-2">Image</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div id="iconInput" class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="icon">
+                            Icon (Font Awesome class)
+                        </label>
+                        <input type="text" id="icon" name="icon" placeholder="fas fa-link"
+                               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                    </div>
+                    <div id="imageInput" class="mb-4 hidden">
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="image">
+                            Image URL
+                        </label>
+                        <input type="url" id="image" name="image" placeholder="https://example.com/image.jpg"
+                               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="backgroundColor">
+                            Background Color
+                        </label>
+                        <div class="flex items-center space-x-2">
+                            <input type="color" id="backgroundColor" name="backgroundColor" value="#f8fafc"
+                                   class="h-8 w-14 rounded border border-gray-300 cursor-pointer">
+                            <input type="text" id="backgroundColorText" value="#f8fafc"
+                                   class="shadow appearance-none border rounded w-32 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                                   oninput="document.getElementById('backgroundColor').value = this.value">
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="order">
+                            Order
+                        </label>
+                        <input type="number" id="order" name="order" required
+                               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                    </div>
+                    <div class="flex items-center justify-between mt-6">
+                        <button type="submit" class="bg-primary hover:bg-primary-dark text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                            Save
+                        </button>
+                        <button type="button" onclick="closeLinkModal()" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                            Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    function toggleDisplayType(type) {
+        const iconInput = document.getElementById('iconInput');
+        const imageInput = document.getElementById('imageInput');
+        
+        if (type === 'icon') {
+            iconInput.classList.remove('hidden');
+            imageInput.classList.add('hidden');
+            document.getElementById('image').value = '';
+        } else {
+            iconInput.classList.add('hidden');
+            imageInput.classList.remove('hidden');
+            document.getElementById('icon').value = '';
+        }
+    }
+
+    function openNewLinkModal() {
+        document.getElementById('modalTitle').textContent = 'Add New Link';
+        document.getElementById('linkForm').reset();
+        document.getElementById('linkId').value = '';
+        document.getElementById('linkModal').classList.remove('hidden');
+    }
+
+    function openEditLinkModal(id) {
+        document.getElementById('modalTitle').textContent = 'Edit Link';
+        // Fetch link data and populate form
+        fetch(`/admin/links/${id}`)
+            .then(response => response.json())
+            .then(link => {
+                document.getElementById('linkId').value = link.id;
+                document.getElementById('title').value = link.title;
+                document.getElementById('url').value = link.url;
+                document.getElementById('order').value = link.order;
+                document.getElementById('backgroundColor').value = link.backgroundColor || '#f8fafc';
+                document.getElementById('backgroundColorText').value = link.backgroundColor || '#f8fafc';
+
+                // Handle icon/image display type
+                if (link.image) {
+                    document.querySelector('input[name="displayType"][value="image"]').checked = true;
+                    document.getElementById('image').value = link.image;
+                    document.getElementById('icon').value = '';
+                    toggleDisplayType('image');
+                } else {
+                    document.querySelector('input[name="displayType"][value="icon"]').checked = true;
+                    document.getElementById('icon').value = link.icon;
+                    document.getElementById('image').value = '';
+                    toggleDisplayType('icon');
+                }
+
+                document.getElementById('linkModal').classList.remove('hidden');
+            });
+    }
+
+    function closeLinkModal() {
+        document.getElementById('linkModal').classList.add('hidden');
+    }
+
+    function deleteLink(id) {
+        if (confirm('Are you sure you want to delete this link?')) {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `/admin/links/${id}/delete`;
+            document.body.appendChild(form);
+            form.submit();
+        }
+    }
+
+    // Close modal when clicking outside
+    document.getElementById('linkModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeLinkModal();
+        }
+    });
+
+    // Handle form submission
+    document.getElementById('linkForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const id = document.getElementById('linkId').value;
+        const method = id ? 'PUT' : 'POST';
+        const url = id ? `/admin/links/${id}` : '/admin/links';
+        
+        const displayType = document.querySelector('input[name="displayType"]:checked').value;
+        const payload = {
+            title: document.getElementById('title').value,
+            url: document.getElementById('url').value,
+            order: document.getElementById('order').value,
+            backgroundColor: document.getElementById('backgroundColor').value
+        };
+
+        // Add either icon or image based on display type
+        if (displayType === 'icon') {
+            payload.icon = document.getElementById('icon').value;
+            payload.image = null;
+        } else {
+            payload.image = document.getElementById('image').value;
+            payload.icon = null;
+        }
+
+        fetch(url, {
+            method: method,
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload)
+        }).then(() => {
+            window.location.reload();
+        });
+    });
+
+    // Update background color text input when color picker changes
+    document.getElementById('backgroundColor').addEventListener('input', function(e) {
+        document.getElementById('backgroundColorText').value = e.target.value;
+    });
+
+    // Update color picker when text input changes
+    document.getElementById('backgroundColorText').addEventListener('input', function(e) {
+        document.getElementById('backgroundColor').value = e.target.value;
+    });
+    </script>
+</body>
+</html>
